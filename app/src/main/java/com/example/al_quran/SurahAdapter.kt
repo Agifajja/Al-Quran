@@ -32,11 +32,13 @@ class SurahAdapter(
     inner class SurahViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameArabic: TextView = itemView.findViewById(R.id.textArabicName)
         private val nameEnglish: TextView = itemView.findViewById(R.id.textEnglishName)
+        private val revelationType: TextView = itemView.findViewById(R.id.textRevelationType)
         private val ayahCount: TextView = itemView.findViewById(R.id.textAyahCount)
 
         fun bind(surah: Surah) {
             nameArabic.text = surah.name
             nameEnglish.text = surah.englishName
+            revelationType.text = surah.revelationType
             ayahCount.text = "${surah.numberOfAyahs} ayat"
 
             itemView.setOnClickListener {

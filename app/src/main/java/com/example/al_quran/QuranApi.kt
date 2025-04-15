@@ -1,5 +1,6 @@
 package com.example.al_quran
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -12,4 +13,6 @@ interface QuranApi {
         @Path("id") id: Int,
         @Path("edition") edition: String
     ): SurahDetailsResponse
+
+
 }
