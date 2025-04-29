@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,11 +15,10 @@
         android:theme="@style/Theme.AlQuran"
         tools:targetApi="31">
 
-        <!-- Launcher Activity -->
+        <!-- Login Activity (paling awal) -->
         <activity
-            android:name=".SurahListActivity"
+            android:name=".LoginActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AlQuran">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,11 +26,16 @@
             </intent-filter>
         </activity>
 
-        <!-- Detail Activity -->
+        <!-- List Surah -->
+        <activity
+            android:name=".SurahListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AlQuran" />
+
+        <!-- Detail Surah -->
         <activity
             android:name=".SurahDetailsActivity"
             android:exported="false"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AlQuran" />
 
     </application>

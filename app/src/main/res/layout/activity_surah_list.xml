@@ -3,49 +3,56 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black">
+    android:background="@drawable/background"
+    android:paddingTop="?attr/actionBarSize">
 
-
-    <!-- Sticky Surah Info -->
-    <LinearLayout
-        android:id="@+id/layoutStickySurahInfo"
+    <!-- Header with Logo and Profile -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="#222222">
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textStickyArabicName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="الفاتحة"
-            android:textAlignment="viewEnd"
-            android:textDirection="rtl"
-            android:textSize="20sp"
-            android:textColor="@color/white" />
+        <!-- Al-Quran Logo -->
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle"
+            android:src="@mipmap/quran"
+            android:layout_alignParentStart="true"
+            android:contentDescription="Quran Logo" />
 
+        <!-- Title -->
         <TextView
-            android:id="@+id/textStickyEnglishName"
-            android:layout_width="match_parent"
+            android:id="@+id/textAppTitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Al-Fatihah"
-            android:textSize="16sp"
-            android:textColor="@color/white" />
+            android:text="Al-Qur'an"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"
+            android:textColor="@color/gold" />
 
-        <TextView
-            android:id="@+id/textStickyRevelation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mekah • 7 Ayat"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
-    </LinearLayout>
+        <!-- Profile Picture -->
+        <ImageView
+            android:id="@+id/imgProfile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:src="@mipmap/google"
+            android:background="@drawable/circle"
+        android:padding="4dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Profile"
+        android:clickable="true"
+        android:focusable="true" />
+    </RelativeLayout>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:padding="8dp" />
 </LinearLayout>

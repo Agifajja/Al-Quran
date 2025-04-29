@@ -2,42 +2,39 @@ package com.example.al_quran
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.al_quran.databinding.ActivitySurahListBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SurahListActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: ActivitySurahListBinding
     private lateinit var adapter: SurahAdapter
     private lateinit var surahList: List<Surah>
 
-    // Sticky header views
-    private lateinit var textStickyArabicName: TextView
-    private lateinit var textStickyEnglishName: TextView
-    private lateinit var textStickyRevelation: TextView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_surah_list)
+        binding = ActivitySurahListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
+        // Set up RecyclerView
         adapter = SurahAdapter { surah -> openSurahDetails(surah) }
-        recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
 
-        // Sticky header view references
-        textStickyArabicName = findViewById(R.id.textStickyArabicName)
-        textStickyEnglishName = findViewById(R.id.textStickyEnglishName)
-        textStickyRevelation = findViewById(R.id.textStickyRevelation)
+        // Set listener untuk tombol profil
+        binding.imgProfile.setOnClickListener {
+            showProfileDialog()
+        }
 
+        // Fetch data surat
         fetchSurahList()
     }
 
@@ -49,55 +46,52 @@ class SurahListActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     val data = response.body()
-                    Log.d("API_RESPONSE", "Status: ${data?.status}, Total Surah: ${data?.data?.size}")
-
                     data?.data?.let {
                         surahList = it
                         adapter.submitList(it)
-
-                        // Inisialisasi sticky header dengan surah pertama
-                        updateStickyHeader(it[0])
-
-                        setupScrollListener()
                     }
                 } else {
-                    Log.e("API_ERROR", "Response tidak sukses: ${response.code()} - ${response.message()}")
-                    Toast.makeText(this@SurahListActivity, "Gagal memuat data (response gagal)", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SurahListActivity, "Gagal memuat data (response error)", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<SurahListResponse>, t: Throwable) {
-                Log.e("API_ERROR", "Retrofit gagal: ${t.message}")
                 Toast.makeText(this@SurahListActivity, "Gagal memuat data (jaringan)", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun setupScrollListener() {
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                val position = layoutManager.findFirstVisibleItemPosition()
-
-                if (position != RecyclerView.NO_POSITION && position < surahList.size) {
-                    updateStickyHeader(surahList[position])
-                }
-            }
-        })
-    }
-
-    private fun updateStickyHeader(surah: Surah) {
-        textStickyArabicName.text = surah.name
-        textStickyEnglishName.text = surah.englishName
-        textStickyRevelation.text = "${surah.revelationType} • ${surah.numberOfAyahs} Ayat"
-    }
-
+    // Kirim data lengkap ke detail activity
     private fun openSurahDetails(surah: Surah) {
         val intent = Intent(this, SurahDetailsActivity::class.java)
         intent.putExtra("SURAH_ID", surah.number)
         intent.putExtra("SURAH_NAME", surah.englishName)
         intent.putExtra("SURAH_TYPE", surah.revelationType)
+        intent.putExtra("SURAH_AYAH_COUNT", surah.numberOfAyahs)
         startActivity(intent)
+    }
+
+    private fun showProfileDialog() {
+        val account = GoogleSignIn.getLastSignedInAccount(this)
+        val name = account?.displayName ?: "Unknown User"
+        val email = account?.email ?: ""
+
+        AlertDialog.Builder(this)
+            .setTitle(name)
+            .setMessage(email)
+            .setPositiveButton("Logout") { _, _ -> signOut() }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun signOut() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        GoogleSignIn.getClient(this, gso)
+            .signOut()
+            .addOnCompleteListener {
+                Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
     }
 }

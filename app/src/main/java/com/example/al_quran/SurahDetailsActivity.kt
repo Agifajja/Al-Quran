@@ -1,31 +1,29 @@
 package com.example.al_quran
 
 import AyahAdapter
+import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.coroutines.*
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class SurahDetailsActivity : AppCompatActivity() {
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: AyahAdapter
-    private lateinit var revelationTypeText: TextView
+    private lateinit var arabicNameText: TextView
+    private lateinit var englishNameText: TextView
+    private lateinit var revelationText: TextView
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
 
-    private val api: QuranApi by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://api.alquran.cloud/v1/edition/language/id/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(QuranApi::class.java)
-    }
+    private val api: QuranApi by lazy { RetrofitClient.instance }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,46 +34,90 @@ class SurahDetailsActivity : AppCompatActivity() {
         adapter = AyahAdapter()
         recyclerView.adapter = adapter
 
-        revelationTypeText = findViewById(R.id.textRevelationType)
+        arabicNameText = findViewById(R.id.textArabicName)
+        englishNameText = findViewById(R.id.textEnglishName)
+        revelationText = findViewById(R.id.textRevelation)
+
+        val imgProfile = findViewById<ImageView>(R.id.imgProfileDetail)
+        imgProfile.setOnClickListener { showProfileDialog() }
 
         val surahId = intent.getIntExtra("SURAH_ID", 1)
-        val surahName = intent.getStringExtra("SURAH_NAME")
+        val surahNameArabic = intent.getStringExtra("SURAH_ARABIC_NAME")
+        val surahNameEnglish = intent.getStringExtra("SURAH_NAME")
         val surahType = intent.getStringExtra("SURAH_TYPE")
-        title = surahName ?: "Surah"
+        val ayahCount = intent.getIntExtra("SURAH_AYAH_COUNT", 0)
 
-        revelationTypeText.text = "Revelation: $surahType"
+        title = surahNameEnglish ?: "Surah"
+        arabicNameText.text = surahNameArabic
+        englishNameText.text = surahNameEnglish
+        revelationText.text = "$surahType • $ayahCount Ayat"
 
         fetchSurahDetails(surahId)
     }
 
     private fun fetchSurahDetails(surahId: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
+        uiScope.launch {
             try {
-                val arabicResponse = RetrofitClient.instance.getSurahDetails(surahId, "ar.alafasy")
-                val translationResponse = RetrofitClient.instance.getSurahDetails(surahId, "id.indonesian")
+                val arabicDeferred = async(Dispatchers.IO) {
+                    api.getSurahDetails(surahId, "ar.alafasy")
+                }
+                val translationDeferred = async(Dispatchers.IO) {
+                    api.getSurahDetails(surahId, "id.indonesian")
+                }
 
-                val arabicAyat = arabicResponse.data.ayahs
-                val translationAyat = translationResponse.data.ayahs
+                val arabicResponse = arabicDeferred.await()
+                val translationResponse = translationDeferred.await()
 
-                val combined = arabicAyat.zip(translationAyat).map { (ar, tr) ->
+                val combined = arabicResponse.data.ayahs.zip(translationResponse.data.ayahs).map { (ar, tr) ->
                     Ayah(
                         number = ar.number,
                         numberInSurah = ar.numberInSurah,
                         arabicText = ar.text,
                         translationText = tr.text,
-                        audioUrl = ar.audio // ini ditambahkan
+                        audioUrl = ar.audio
                     )
                 }
 
-                withContext(Dispatchers.Main) {
-                    adapter.submitList(combined)
-                }
+                adapter.submitList(combined)
+
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@SurahDetailsActivity, "Gagal memuat ayat", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(this@SurahDetailsActivity, "Gagal memuat ayat", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun showProfileDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_profile, null)
+        val dialog = AlertDialog.Builder(this).setView(dialogView).create()
+
+        val account = GoogleSignIn.getLastSignedInAccount(this)
+        val name = account?.displayName ?: "Unknown User"
+        val email = account?.email ?: ""
+
+        dialogView.findViewById<TextView>(R.id.textProfileName).text = name
+        dialogView.findViewById<TextView>(R.id.textProfileEmail).text = email
+
+        dialogView.findViewById<Button>(R.id.btnLogout).setOnClickListener {
+            signOut()
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun signOut() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        GoogleSignIn.getClient(this, gso)
+            .signOut()
+            .addOnCompleteListener {
+                Toast.makeText(this, "Logout berhasil", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
     }
 
     override fun onDestroy() {

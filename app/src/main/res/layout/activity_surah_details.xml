@@ -1,23 +1,83 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/textRevelationType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:layout_margin="16dp"
-        android:textColor="?android:textColorSecondary" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <RelativeLayout
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false" />
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:background="@drawable/background">
+
+        <!-- Header Surah -->
+        <RelativeLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#333333"
+            android:padding="20dp">
+
+            <!-- Nama Surah Arabic -->
+            <TextView
+                android:id="@+id/textArabicName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="الفاتحة"
+                android:textSize="28sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:textDirection="rtl"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="6dp" />
+
+            <!-- Nama Surah Latin -->
+            <TextView
+                android:id="@+id/textEnglishName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Al-Fatihah"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textAlignment="center"
+                android:layout_below="@id/textArabicName"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Jenis Wahyu & Ayat -->
+            <TextView
+                android:id="@+id/textRevelation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mekah • 7 Ayat"
+                android:textSize="14sp"
+                android:textColor="#BBBBBB"
+                android:textAlignment="center"
+                android:layout_below="@id/textEnglishName"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="2dp" />
+
+            <!-- Foto Profil -->
+            <ImageView
+                android:id="@+id/imgProfileDetail"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_alignParentEnd="true"
+                android:src="@mipmap/google"
+                android:background="@drawable/circle"
+                android:padding="6dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="Profile"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </RelativeLayout>
+
+        <!-- RecyclerView Ayat -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/headerLayout"
+            android:layout_marginTop="0dp" />
+
+    </RelativeLayout>
+</layout>

@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Al-Quran</string>
     <string name="play_audio">Play Audio</string>
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="login_prompt">Please login with your Google account</string>
+    <string name="login_button">Login with Google</string>
+    <string name="google_logo_desc">Google Logo</string>
 
 </resources>
